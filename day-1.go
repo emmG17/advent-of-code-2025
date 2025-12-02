@@ -3,10 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
-	"os"
-	"path/filepath"
 	"strconv"
-	"strings"
 )
 
 // Helper to calculate absolute value for ints
@@ -27,7 +24,7 @@ func DayOne() {
 	// 'b' stores the answer for Part 2 (passes 0)
 	b := 0
 	
-	lines := getData("./challenge-input/day-1.txt")
+	lines := getData("./challenge-input/day-1.txt", "\n")
 
 	for _, line := range lines {
 		direction := line[0]
@@ -80,14 +77,3 @@ func DayOne() {
 	fmt.Println("Part 1:", a, "Part 2:", b)
 }
 
-// Boilerplate file reading
-func check(e error) {
-	if e != nil { panic(e) }
-}
-
-func getData(path string) []string {
-	cleanPath := filepath.Clean(path)
-	bytes, err := os.ReadFile(cleanPath)
-	check(err)
-	return strings.Split(strings.TrimSpace(string(bytes)), "\n")
-}

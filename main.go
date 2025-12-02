@@ -9,6 +9,7 @@ import (
 func main() {
 	daySolutions := map[int]func(){
 		1: DayOne,
+		2: DayTwo,
 	}
 
 	if len(os.Args) < 2 {
