@@ -10,6 +10,7 @@ func main() {
 	daySolutions := map[int]func(){
 		1: DayOne,
 		2: DayTwo,
+		3: DayThree,
 	}
 
 	if len(os.Args) < 2 {
