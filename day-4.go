@@ -5,6 +5,44 @@ import (
 	"strings"
 )
 
+func countTotalRemovableNaive(input string) int {
+	// repeated code from countAccessibleRolls - could be refactored but whatever
+	lines := strings.Split(strings.TrimSpace(input), "\n")
+	if len(lines) == 0 {
+		return 0
+	}
+	
+	height := len(lines)
+	width := len(lines[0])
+	
+	grid := make([]rune, height*width)
+	for i, line := range lines {
+		for j, char := range line {
+			grid[i*width+j] = char
+		}
+	}
+	
+	totalRemoved := 0
+	removedThisIteration := true
+	
+	// Keep removing until no more can be removed, this is naive but works
+	for removedThisIteration {
+		removedThisIteration = false
+		
+		for i := range grid {
+			if grid[i] == '@' {
+				neighbors := countNeighbors(grid, i, width)
+				if neighbors < 4 {
+					grid[i] = '.'
+					totalRemoved++
+					removedThisIteration = true
+				}
+			}
+		}
+	}
+	return totalRemoved
+}
+
 func countAccessibleRolls(input string) int {
 	lines := strings.Split(strings.TrimSpace(input), "\n")
 	if len(lines) == 0 {
@@ -14,7 +52,6 @@ func countAccessibleRolls(input string) int {
 	height := len(lines)
 	width := len(lines[0])
 	
-	// Convert 2D grid to 1D array
 	grid := make([]rune, height*width)
 	for i, line := range lines {
 		for j, char := range line {
@@ -22,7 +59,6 @@ func countAccessibleRolls(input string) int {
 		}
 	}
 	
-	// Count accessible rolls
 	accessible := 0
 	for i := range grid {
 		if grid[i] == '@' {
@@ -73,6 +109,8 @@ func countNeighbors(grid []rune, idx, width int) int {
 func DayFour() {
  	input := getData("./challenge-input/day-4.txt", "")
 	data := strings.Join(input, "")
-	result := countAccessibleRolls(data)
-	fmt.Println("Number of accessible rolls:", result)
+	part1 := countAccessibleRolls(data)
+	part2 := countTotalRemovableNaive(data)
+	fmt.Printf("Day 4 - Part 1: %d\n", part1)
+	fmt.Printf("Day 4 - Part 2: %d\n", part2)
 }
