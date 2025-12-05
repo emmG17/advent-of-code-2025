@@ -1,8 +1,3 @@
-Here is the complete, consolidated Markdown file for Day 3, ready for your class.
-
------
-
-````markdown
 # Advent of Code - Day 3: The Escalator Batteries
 
 ## 1. The Problem
@@ -29,10 +24,6 @@ Since we want the largest total number, we want the **largest digit possible in 
 
 ### The "Safety Window"
 Imagine we have the row: `4 9 1 2 5` and we need to pick **3** numbers.
-
-
-
-[Image of sliding window algorithm diagram]
 
 
 **Step 1:** We need to pick our first number.
