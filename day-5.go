@@ -81,14 +81,3 @@ func mergeRanges(ranges [][]int) [][]int {
 
 	return merged
 }
-
-func assertEqual(a, b [][]int) {
-	if len(a) != len(b) {
-		panic("Slices are not equal")
-	}
-	for i := range a {
-		if a[i][0] != b[i][0] || a[i][1] != b[i][1] {
-			panic("Slices are not equal")
-		}
-	}
-}
