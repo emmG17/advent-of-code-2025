@@ -12,6 +12,7 @@ func main() {
 		2: DayTwo,
 		3: DayThree,
 		4: DayFour,
+		5: DayFive,
 	}
 
 	if len(os.Args) < 2 {
