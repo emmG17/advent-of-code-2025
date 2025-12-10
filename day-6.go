@@ -13,6 +13,39 @@ type Task struct {
 	Op      string
 }
 
+func (t *Task) Apply() int {
+	result := 0
+
+	switch t.Op {
+	case "+":
+		for _, num := range t.Numbers {
+			result += num
+		}
+	case "-":
+		for _, num := range t.Numbers {
+			result -= num
+		}
+	case "*":
+		result = t.Numbers[0]
+		for _, num := range t.Numbers[1:] {
+			result *= num
+		}
+	case "/":
+		result = t.Numbers[0]
+		for _, num := range t.Numbers[1:] {
+			if num != 0 {
+				result /= num
+			} else {
+				result = 0 // handle division by zero
+			}
+		}
+	default:
+		// handle unknown operation
+		result = 0
+	}
+	return result
+}
+
 func DaySix() {
 	rawData := getData("./challenge-input/day-6.txt", "\n")
 
@@ -22,12 +55,12 @@ func DaySix() {
 
 	part1 := 0
 	for _, task := range part1Tasks {
-		part1 += applyOp(task)
+		part1 += task.Apply()
 	}
 
 	part2 := 0
 	for _, task := range part2Tasks {
-		part2 += applyOp(task)
+		part2 += task.Apply()
 	}
 
 	fmt.Println("Final Result:", part1)
@@ -108,39 +141,6 @@ func splitVerticalBlocks(lines []string) [][]string {
 	}
 
 	return blocks
-}
-
-func applyOp(task Task) int {
-	result := 0
-
-	switch task.Op {
-	case "+":
-		for _, num := range task.Numbers {
-			result += num
-		}
-	case "-":
-		for _, num := range task.Numbers {
-			result -= num
-		}
-	case "*":
-		result = task.Numbers[0]
-		for _, num := range task.Numbers[1:] {
-			result *= num
-		}
-	case "/":
-		result = task.Numbers[0]
-		for _, num := range task.Numbers[1:] {
-			if num != 0 {
-				result /= num
-			} else {
-				result = 0 // handle division by zero
-			}
-		}
-	default:
-		// handle unknown operation
-		result = 0
-	}
-	return result
 }
 
 func parseSequentially(block []string) ([]int, string) {
