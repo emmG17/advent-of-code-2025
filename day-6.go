@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"slices"
 	"strconv"
+	"strings"
+	"unicode"
 )
 
 type Task struct {
@@ -44,61 +46,173 @@ func applyOp(task Task) int {
 	return result
 }
 
-func columnsToRows(data [][]string) [][]string {
-	if len(data) == 0 {
-		return [][]string{}
-	}
-	numCols := len(data[0])
-	numRows := len(data)
-	transposed := make([][]string, numCols)
-	for i := range transposed {
-		transposed[i] = make([]string, numRows)
-	}
-	for i := range numRows {
-		for j := range numCols {
-			transposed[j][i] = data[i][j]
+// The numbers all array elements but the last one
+func parseSequentially(block []string) ([]int, string) {
+	nums := []int{}
+	op := strings.TrimSpace(block[len(block)-1])
+	for _, line := range block[:len(block)-1] {
+		trimmed := strings.TrimSpace(line)
+		converted, err := strconv.Atoi(trimmed)
+		if err == nil {
+			nums = append(nums, converted)
 		}
 	}
-	return transposed
+	return nums, op
 }
 
-func parseData(data []string) []Task {
+func part1TaskParser(blocks [][]string) []Task {
 	tasks := []Task{}
-	splitData := [][]string{}
-	for _, line := range data {
-		splitLine := strings.Fields(line)
-		splitData = append(splitData, splitLine)
+	for _, block := range blocks {
+		nums, op := parseSequentially(block)
+		tasks = append(tasks, Task{nums, op})
+	}
+	return tasks
+}
+
+func part2TaskParser(blocks [][]string) []Task {
+	nums := [][]int{}
+	ops := []string{}
+
+	for _, block := range blocks {
+		op := block[len(block)-1]
+		op = strings.TrimSpace(op)
+		ops = append(ops, op)
+		numbers := extractNumbersFromBlock(block)
+		nums = append(nums, numbers)
 	}
 
-  columnData := columnsToRows(splitData)
+	return createTasks(nums, ops)
+}
 
-	// Col is: [numbers..., op]
-	for _, col := range columnData {
-		numbers := []int{}
-		for _, strNum := range col[:len(col)-1] {
-			num, err := strconv.Atoi(strNum)
+func splitVerticalBlocks(lines []string) [][]string {
+	if len(lines) == 0 {
+		return nil
+	}
+
+	var grid [][]rune
+	maxWidth := 0
+	for _, line := range lines {
+		r := []rune(line)
+		if len(r) > maxWidth {
+			maxWidth = len(r)
+		}
+		grid = append(grid, r)
+	}
+
+	for i := range grid {
+		for len(grid[i]) < maxWidth {
+			grid[i] = append(grid[i], ' ')
+		}
+	}
+
+	var blocks [][]string
+	startCol := -1
+
+	for col := 0; col < maxWidth; col++ {
+		isGap := true
+		for row := 0; row < len(grid); row++ {
+			if grid[row][col] != ' ' {
+				isGap = false
+				break
+			}
+		}
+
+		if !isGap {
+			if startCol == -1 {
+				startCol = col
+			}
+		} else {
+			if startCol != -1 {
+				blocks = append(blocks, extractSlice(grid, startCol, col))
+				startCol = -1
+			}
+		}
+	}
+
+	if startCol != -1 {
+		blocks = append(blocks, extractSlice(grid, startCol, maxWidth))
+	}
+
+	return blocks
+}
+
+func extractSlice(grid [][]rune, start, end int) []string {
+	var block []string
+	for _, row := range grid {
+		block = append(block, string(row[start:end]))
+	}
+	return block
+}
+
+func extractNumbersFromBlock(block []string) []int {
+	if len(block) == 0 {
+		return nil
+	}
+
+	maxWidth := 0
+	for _, line := range block {
+		if len(line) > maxWidth {
+			maxWidth = len(line)
+		}
+	}
+
+	var numbers []int
+
+	for col := 0; col < maxWidth; col++ {
+		var digitBuffer strings.Builder
+
+		for _, line := range block {
+			if col < len(line) {
+				char := rune(line[col])
+				if unicode.IsDigit(char) {
+					digitBuffer.WriteRune(char)
+				}
+			}
+		}
+
+		if digitBuffer.Len() > 0 {
+			num, err := strconv.Atoi(digitBuffer.String())
 			if err == nil {
 				numbers = append(numbers, num)
 			}
 		}
-		op := col[len(col)-1]
+	}
+
+	slices.Reverse(numbers)
+	return numbers
+}
+
+// Asume nums and ops have the same length
+func createTasks(nums [][]int, ops []string) []Task {
+	tasks := []Task{}
+
+	for i := range nums {
 		task := Task{
-			Numbers: numbers,
-			Op:      op,
+			Numbers: nums[i],
+			Op:      ops[i],
 		}
 		tasks = append(tasks, task)
 	}
-
 	return tasks
 }
 
 func DaySix() {
 	rawData := getData("./challenge-input/day-6.txt", "\n")
-	tasks := parseData(rawData)
 
-	result := 0
-	for _, task := range tasks {
-		result += applyOp(task)
+	blocks := splitVerticalBlocks(rawData)
+	part1Tasks := part1TaskParser(blocks)
+	part2Tasks := part2TaskParser(blocks)
+
+	part1 := 0
+	for _, task := range part1Tasks {
+		part1 += applyOp(task)
 	}
-	fmt.Println("Final Result:", result)
+
+	part2 := 0
+	for _, task := range part2Tasks {
+		part2 += applyOp(task)
+	}
+
+	fmt.Println("Final Result:", part1)
+	fmt.Println("Part 2 Result:", part2)
 }
