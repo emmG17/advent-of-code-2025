@@ -13,51 +13,25 @@ type Task struct {
 	Op      string
 }
 
-func applyOp(task Task) int {
-	result := 0
+func DaySix() {
+	rawData := getData("./challenge-input/day-6.txt", "\n")
 
-	switch task.Op {
-	case "+":
-		for _, num := range task.Numbers {
-			result += num
-		}
-	case "-":
-		for _, num := range task.Numbers {
-			result -= num
-		}
-	case "*":
-		result = task.Numbers[0]
-		for _, num := range task.Numbers[1:] {
-			result *= num
-		}
-	case "/":
-		result = task.Numbers[0]
-		for _, num := range task.Numbers[1:] {
-			if num != 0 {
-				result /= num
-			} else {
-				result = 0 // handle division by zero
-			}
-		}
-	default:
-		// handle unknown operation
-		result = 0
-	}
-	return result
-}
+	blocks := splitVerticalBlocks(rawData)
+	part1Tasks := part1TaskParser(blocks)
+	part2Tasks := part2TaskParser(blocks)
 
-// The numbers all array elements but the last one
-func parseSequentially(block []string) ([]int, string) {
-	nums := []int{}
-	op := strings.TrimSpace(block[len(block)-1])
-	for _, line := range block[:len(block)-1] {
-		trimmed := strings.TrimSpace(line)
-		converted, err := strconv.Atoi(trimmed)
-		if err == nil {
-			nums = append(nums, converted)
-		}
+	part1 := 0
+	for _, task := range part1Tasks {
+		part1 += applyOp(task)
 	}
-	return nums, op
+
+	part2 := 0
+	for _, task := range part2Tasks {
+		part2 += applyOp(task)
+	}
+
+	fmt.Println("Final Result:", part1)
+	fmt.Println("Part 2 Result:", part2)
 }
 
 func part1TaskParser(blocks [][]string) []Task {
@@ -136,12 +110,50 @@ func splitVerticalBlocks(lines []string) [][]string {
 	return blocks
 }
 
-func extractSlice(grid [][]rune, start, end int) []string {
-	var block []string
-	for _, row := range grid {
-		block = append(block, string(row[start:end]))
+func applyOp(task Task) int {
+	result := 0
+
+	switch task.Op {
+	case "+":
+		for _, num := range task.Numbers {
+			result += num
+		}
+	case "-":
+		for _, num := range task.Numbers {
+			result -= num
+		}
+	case "*":
+		result = task.Numbers[0]
+		for _, num := range task.Numbers[1:] {
+			result *= num
+		}
+	case "/":
+		result = task.Numbers[0]
+		for _, num := range task.Numbers[1:] {
+			if num != 0 {
+				result /= num
+			} else {
+				result = 0 // handle division by zero
+			}
+		}
+	default:
+		// handle unknown operation
+		result = 0
 	}
-	return block
+	return result
+}
+
+func parseSequentially(block []string) ([]int, string) {
+	nums := []int{}
+	op := strings.TrimSpace(block[len(block)-1])
+	for _, line := range block[:len(block)-1] {
+		trimmed := strings.TrimSpace(line)
+		converted, err := strconv.Atoi(trimmed)
+		if err == nil {
+			nums = append(nums, converted)
+		}
+	}
+	return nums, op
 }
 
 func extractNumbersFromBlock(block []string) []int {
@@ -182,7 +194,6 @@ func extractNumbersFromBlock(block []string) []int {
 	return numbers
 }
 
-// Asume nums and ops have the same length
 func createTasks(nums [][]int, ops []string) []Task {
 	tasks := []Task{}
 
@@ -196,23 +207,10 @@ func createTasks(nums [][]int, ops []string) []Task {
 	return tasks
 }
 
-func DaySix() {
-	rawData := getData("./challenge-input/day-6.txt", "\n")
-
-	blocks := splitVerticalBlocks(rawData)
-	part1Tasks := part1TaskParser(blocks)
-	part2Tasks := part2TaskParser(blocks)
-
-	part1 := 0
-	for _, task := range part1Tasks {
-		part1 += applyOp(task)
+func extractSlice(grid [][]rune, start, end int) []string {
+	var block []string
+	for _, row := range grid {
+		block = append(block, string(row[start:end]))
 	}
-
-	part2 := 0
-	for _, task := range part2Tasks {
-		part2 += applyOp(task)
-	}
-
-	fmt.Println("Final Result:", part1)
-	fmt.Println("Part 2 Result:", part2)
+	return block
 }
